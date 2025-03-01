@@ -92,6 +92,10 @@ def setup_alphabet_component_with_duplicates():
 def setup_alphabet_missing_braces_component():
     return "alphabet={0,1"
 
+def setup_alphabet_invalid_symbols():
+    """Symbols should only be single char"""
+    return "alphabet={0,10}"
+
 def test_parse_alphabet():
     """tests that correct alphabet syntax is correctly parsed"""
     alphabet_str = setup_correct_alphabet_component()

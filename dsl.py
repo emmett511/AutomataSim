@@ -124,6 +124,10 @@ class AutomatonDSL:
         if len(parsed_symbols) != len(set(parsed_symbols)):
             return None
         
+        # ensure symbols are only one char
+        if any([len(s) != 1 for s in parsed_symbols]):
+            return None
+
         return set(parsed_symbols)
         
         
