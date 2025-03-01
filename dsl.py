@@ -62,8 +62,8 @@ class AutomatonDSL:
         regex = f"{automaton_header}{opening_brace}{body}{closing_brace}"
 
         # parse name and body
-        automaton_body = re.compile(regex, re.DOTALL)
-        match = automaton_body.match(automata_file)
+        automaton_body_regex = re.compile(regex, re.DOTALL)
+        match = automaton_body_regex.match(automata_file)
 
         # handle error for incorrect 
         if not match:
@@ -80,8 +80,28 @@ class AutomatonDSL:
         return name, stmts
 
     @staticmethod 
-    def parse_states(states: str):
-        pass
+    def _parse_states(states: str):
+        """
+        Parses states from whitespace stripped input string of form "states={<s1>,<s2>,...,<sn>}" 
+        Returns a list of strings containing the state names
+        """
+        
+        # pattern match on the input string
+        states_regex = re.compile(r"states=\{(?P<states>[\w+\s,]+)\}")
+        match = states_regex.match(states)
+
+        # incorrect formatting 
+        if not match:
+            return None
+        
+        # extract states into list
+        parsed_states = match.group("states").split(",")
+
+        # ensure no duplicates in parsed states
+        if len(parsed_states) != len(set(parsed_states)):
+            return None
+        
+        return parsed_states
 
     @staticmethod
     def parse_alphabet(alphabet: str):

@@ -1,7 +1,6 @@
 import pytest
 from dsl import AutomatonDSL
 
-
 def setup_correct_automaton():
     """Correct Automata Description"""
     return """
@@ -40,6 +39,7 @@ def test_parse_components():
     # parse correct automaton
     automaton_file = setup_correct_automaton()
     name, body = AutomatonDSL._parse_components(automaton_file)
+    print(body)
     # ensure all components are presetn
     assert name == "hector"
     assert 'states={q0,q1}' in body
@@ -56,3 +56,30 @@ def test_parse_missing_component_fails():
     # ensure this does not compile
     assert name is None
     assert body is None
+
+def setup_correct_states_component():
+    return "states={q0,q1,q3,q4}"
+
+def setup_states_component_with_duplicates():
+    return "states={q0,q1,q3,q4,q0}"
+
+def setup_states_missing_braces_component():
+    return "states={q0 q1,q3,q4"
+
+def test_parse_states():
+    """tests that correct syntax is correctly parsed"""
+    states_str = setup_correct_states_component()
+    states = AutomatonDSL._parse_states(states_str)
+    assert states == ['q0', 'q1', 'q3', 'q4']
+
+def test_missing_braces():
+    """tests that incorrect syntax is caught as syntax error"""
+    states_str = setup_states_missing_braces_component()
+    states = AutomatonDSL._parse_states(states_str)
+    assert states is None
+
+def test_duplicates():
+    """tests that duplicate states are caught as syntax error"""
+    states_str = setup_states_component_with_duplicates()
+    states = AutomatonDSL._parse_states(states_str)
+    assert states is None
