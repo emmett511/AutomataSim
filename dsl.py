@@ -83,7 +83,7 @@ class AutomatonDSL:
     def _parse_states(states: str):
         """
         Parses states from whitespace stripped input string of form "states={<s1>,<s2>,...,<sn>}" 
-        Returns a list of strings containing the state names
+        Returns a set of strings containing the state names or None if there is a syntax error.
         """
         
         # pattern match on the input string
@@ -101,11 +101,31 @@ class AutomatonDSL:
         if len(parsed_states) != len(set(parsed_states)):
             return None
         
-        return parsed_states
+        return set(parsed_states)
 
     @staticmethod
-    def parse_alphabet(alphabet: str):
-        pass
+    def _parse_alphabet(alphabet: str):
+        """
+        Parses alphabet from whitespace stripped input string of form "alphabet={<a1>,<a2>,...,<am>}"
+        Returns a set of strings containing the alphabet symbols or None if there is a syntax error.
+        """
+        # pattern match on the input string
+        alphabet_regex = re.compile(r"alphabet=\{(?P<symbols>[\w+\s,]+)\}")
+        match = alphabet_regex.match(alphabet)
+
+        # incorrect formatting 
+        if not match:
+            return None
+        
+        # extract symbols into list
+        parsed_symbols = match.group("symbols").split(",")
+
+        # ensure no duplicates in parsed symbols
+        if len(parsed_symbols) != len(set(parsed_symbols)):
+            return None
+        
+        return set(parsed_symbols)
+        
         
     @staticmethod
     def parse_transition_func(transition_func: str):

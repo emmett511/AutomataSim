@@ -57,6 +57,7 @@ def test_parse_missing_component_fails():
     assert name is None
     assert body is None
 
+
 def setup_correct_states_component():
     return "states={q0,q1,q3,q4}"
 
@@ -69,17 +70,39 @@ def setup_states_missing_braces_component():
 def test_parse_states():
     """tests that correct syntax is correctly parsed"""
     states_str = setup_correct_states_component()
-    states = AutomatonDSL._parse_states(states_str)
-    assert states == ['q0', 'q1', 'q3', 'q4']
+    assert AutomatonDSL._parse_states(states_str) == {'q0', 'q1', 'q3', 'q4'}
 
-def test_missing_braces():
+def test_parse_states_with_missing_braces():
     """tests that incorrect syntax is caught as syntax error"""
     states_str = setup_states_missing_braces_component()
-    states = AutomatonDSL._parse_states(states_str)
-    assert states is None
+    assert AutomatonDSL._parse_states(states_str) is None
 
-def test_duplicates():
+def test_parse_states_with_duplicates():
     """tests that duplicate states are caught as syntax error"""
     states_str = setup_states_component_with_duplicates()
-    states = AutomatonDSL._parse_states(states_str)
-    assert states is None
+    assert AutomatonDSL._parse_states(states_str) is None
+
+
+def setup_correct_alphabet_component():
+    return "alphabet={0,1}"
+
+def setup_alphabet_component_with_duplicates():
+    return "alphabet={0,1,0}"
+
+def setup_alphabet_missing_braces_component():
+    return "alphabet={0,1"
+
+def test_parse_alphabet():
+    """tests that correct alphabet syntax is correctly parsed"""
+    alphabet_str = setup_correct_alphabet_component()
+    assert AutomatonDSL._parse_alphabet(alphabet_str) == {'0', '1'}
+
+def test_duplicates():
+    """tests that duplicate symbols are caught as syntax error"""
+    alphabet_str = setup_alphabet_component_with_duplicates()
+    assert AutomatonDSL._parse_alphabet(alphabet_str) is None
+
+def test_missing_braces():
+    """tests that missing braces are caught as syntax error"""
+    alphabet_str = setup_alphabet_missing_braces_component()
+    assert AutomatonDSL._parse_alphabet(alphabet_str) is None
