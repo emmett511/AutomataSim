@@ -57,7 +57,6 @@ def test_parse_missing_component_fails():
     assert name is None
     assert body is None
 
-
 def setup_correct_states_component():
     return "states={q0,q1,q3,q4}"
 
@@ -81,7 +80,6 @@ def test_parse_states_with_duplicates():
     """tests that duplicate states are caught as syntax error"""
     states_str = setup_states_component_with_duplicates()
     assert AutomatonDSL._parse_states(states_str) is None
-
 
 def setup_correct_alphabet_component():
     return "alphabet={0,1}"
@@ -110,3 +108,21 @@ def test_missing_braces():
     """tests that missing braces are caught as syntax error"""
     alphabet_str = setup_alphabet_missing_braces_component()
     assert AutomatonDSL._parse_alphabet(alphabet_str) is None
+
+def setup_correct_start_state():
+    return "start_state=q0"
+
+def setup_incorrect_start_state():
+    return "start_state=state9"
+
+def test_correct_start_state():
+    """tests that start state parsing is correct (checks that start states is in states set)"""
+    states_str = setup_correct_states_component()
+    start_state_str = setup_correct_start_state()
+    assert AutomatonDSL._parse_start_state(start_state_str, states_str) == 'q0'
+
+def test_incorrect_start_state():
+    """tests that incorrect start state is caught as syntax error"""
+    states_str = setup_correct_states_component()
+    start_state_str = setup_incorrect_start_state()
+    assert AutomatonDSL._parse_start_state(start_state_str, states_str) is None

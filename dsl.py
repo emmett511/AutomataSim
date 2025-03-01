@@ -20,7 +20,6 @@ class AutomatonDSL:
     - All elements in <accept_states> and <start_state> must be elements of <states>.
     - The <transition_func> must exhaustively define the transition of every state 
       for every symbol in the alphabet.
-    
 
     Full syntax of a valid automaton definition:
 
@@ -65,7 +64,7 @@ class AutomatonDSL:
         automaton_body_regex = re.compile(regex, re.DOTALL)
         match = automaton_body_regex.match(automata_file)
 
-        # handle error for incorrect 
+        # incorrect syntax: automaton body rules not followed
         if not match:
             return None, None
 
@@ -90,14 +89,14 @@ class AutomatonDSL:
         states_regex = re.compile(r"states=\{(?P<states>[\w+\s,]+)\}")
         match = states_regex.match(states)
 
-        # incorrect formatting 
+        # incorrect syntax 
         if not match:
             return None
         
         # extract states into list
         parsed_states = match.group("states").split(",")
 
-        # ensure no duplicates in parsed states
+        # incorrect syntax: no duplicates in parsed states
         if len(parsed_states) != len(set(parsed_states)):
             return None
         
@@ -113,28 +112,46 @@ class AutomatonDSL:
         alphabet_regex = re.compile(r"alphabet=\{(?P<symbols>[\w+\s,]+)\}")
         match = alphabet_regex.match(alphabet)
 
-        # incorrect formatting 
+        # incorrect syntax 
         if not match:
             return None
         
         # extract symbols into list
         parsed_symbols = match.group("symbols").split(",")
 
-        # ensure no duplicates in parsed symbols
+        # incorrect syntax: ensure no duplicates in parsed symbols
         if len(parsed_symbols) != len(set(parsed_symbols)):
             return None
         
-        # ensure symbols are only one char
+        # incorrect syntax: symbols should only be one char
         if any([len(s) != 1 for s in parsed_symbols]):
             return None
 
         return set(parsed_symbols)
         
-        
     @staticmethod
-    def parse_transition_func(transition_func: str):
+    def _parse_transition_func(transition_func: str, states: set, alphabet: set):
         pass
 
     @staticmethod
-    def parse_start_state(start_state: str):
-        pass
+    def _parse_start_state(start_state: str, states: set):
+        """
+        Parses the start state from whitespace stripped input string of form "start_state=<s>"
+        Returns the start state or None if there is a syntax error.
+        """
+        # pattern match on the input string
+        start_state_regex = re.compile(r"start_state=(?P<state>\w+)")
+        match = start_state_regex.match(start_state)
+        
+        # incorrect syntax
+        if not match:
+            return None
+
+        # extract start state
+        start = match.group("state")
+
+        # incorrect syntax: start state must be an element of the automaton's states
+        if start not in states:
+            return None
+
+        return start
