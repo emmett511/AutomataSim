@@ -3,8 +3,7 @@ import re
 class AutomatonDSL:
     """
     AutomatonDSL is a compiler for a domain specific language that describes finite automata. 
-    
-    The following syntax rules apply:
+    Below are the syntax rules of the language:
     
     The following keywords are reserved: 
         - automaton
@@ -130,8 +129,54 @@ class AutomatonDSL:
         return set(parsed_symbols)
         
     @staticmethod
-    def _parse_transition_func(transition_func: str, states: set, alphabet: set):
-        pass
+    def _parse_transition_func(transition_func_str: str, states: set, alphabet: set):
+        """
+        Parses state transition function dictionary from whitespace stripped input string of form
+        "transition_func = {(<s>, <a>): <s>, ..., (<s>, <a>): <s>};
+        """
+
+        # extract body of transition function
+        body_regex = re.compile(r"transition_func=\{(?P<body>.*)\}")
+        match = body_regex.match(transition_func_str)
+
+        # incorrect syntax
+        if not match:
+            return None
+
+        # extract each sub-element in order from body
+        body_str = match.group("body")
+        parentheses_removed = body_str.replace("(", "").replace(")", "") # remove parentheses
+        transitions = re.split(r"[:,]", parentheses_removed)             # split on comma and colon
+
+        # incorrect syntax: does not follow (<s>, <a>): <s> for every transition
+        if 0 != len(transitions) % 3:
+            return None
+
+        # collect elements into dictionary 
+        transition_func = {}
+        for i in range(0, len(transitions), 3):
+            transition_func[(transitions[i], transitions[i+1])] = transitions[i+2]
+
+        # verify valid transition function
+        for k, v in transition_func.items():
+
+            # states in transition func inconsistent with previously defined states
+            if k[0] not in states or v not in states:
+                return None
+
+            # symbols in transition func inconsistent with previously defined alphabet
+            if k[1] not in alphabet:
+                return None
+
+        # ensure transition function is exhaustive by making sure
+        # that for every state, there is a transition for each symbol
+        for symbol in alphabet:
+            for state in states:
+                if (state, symbol) not in transition_func:
+                    return None
+
+
+        return transition_func
 
     @staticmethod
     def _parse_start_state(start_state: str, states: set):

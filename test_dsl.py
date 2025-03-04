@@ -1,6 +1,8 @@
 import pytest
 from dsl import AutomatonDSL
 
+
+
 def setup_correct_automaton():
     """Correct Automata Description"""
     return """
@@ -33,7 +35,6 @@ def setup_automaton_missing_components():
         accept_states = {q1};
     }
     """
-
 def test_parse_components():
     """Tests that components of properly formatted automaton are parsed correctly"""
     # parse correct automaton
@@ -56,6 +57,8 @@ def test_parse_missing_component_fails():
     # ensure this does not compile
     assert name is None
     assert body is None
+
+
 
 def setup_correct_states_component():
     return "states={q0,q1,q3,q4}"
@@ -80,6 +83,8 @@ def test_parse_states_with_duplicates():
     """tests that duplicate states are caught as syntax error"""
     states_str = setup_states_component_with_duplicates()
     assert AutomatonDSL._parse_states(states_str) is None
+
+
 
 def setup_correct_alphabet_component():
     return "alphabet={0,1}"
@@ -109,6 +114,8 @@ def test_missing_braces():
     alphabet_str = setup_alphabet_missing_braces_component()
     assert AutomatonDSL._parse_alphabet(alphabet_str) is None
 
+
+
 def setup_correct_start_state():
     return "start_state=q0"
 
@@ -126,3 +133,27 @@ def test_incorrect_start_state():
     states_str = setup_correct_states_component()
     start_state_str = setup_incorrect_start_state()
     assert AutomatonDSL._parse_start_state(start_state_str, states_str) is None
+
+
+
+def setup_correct_transition_func():
+    return "transition_func={(q0,0):q1,(q0,1):q0,(q1,0):q0,(q1,1):q1}"
+
+def setup_incorrect_transition_func():
+    return "transition_func={(q0,0):,(q0,1):q0,(q1,0)q0,(q1,1):q2}"
+
+def test_parse_transition_func():
+    """tests that transition function parsing is correct"""
+    transition_func_str = setup_correct_transition_func()
+    states = {'q0', 'q1'}
+    alphabet = {'0', '1'}
+    transition_func = AutomatonDSL._parse_transition_func(transition_func_str, states, alphabet)
+    assert transition_func == {('q0', '0'): 'q1', ('q0', '1'): 'q0', ('q1', '0'): 'q0', ('q1', '1'): 'q1'}
+
+def test_parse_incorrect_transition_func():
+    """tests that transition function parsing is correct"""
+    transition_func_str = setup_incorrect_transition_func()
+    states = {'q0', 'q1'}
+    alphabet = {'0', '1'}
+    transition_func = AutomatonDSL._parse_transition_func(transition_func_str, states, alphabet)
+    assert transition_func is None
