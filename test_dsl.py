@@ -86,6 +86,32 @@ def test_parse_states_with_duplicates():
 
 
 
+def setup_correct_accept_states_component():
+    return "accept_states={q0,q4}"
+
+def setup_accept_states_component_with_duplicates():
+    return "accept_states={q0,q0}"
+
+def test_parse_accept_states():
+    """tests that correct syntax is correctly parsed"""
+    states_str = setup_correct_states_component()
+    accept_states_str = setup_correct_accept_states_component()
+    states = AutomatonDSL._parse_states(states_str)
+    accept_states = AutomatonDSL._parse_accept_states(accept_states_str, states)
+    print(accept_states)
+    assert accept_states == {'q0', 'q4'}
+
+def test_parse_accept_states_with_duplicates():
+    """tests that correct syntax is correctly parsed"""
+    states_str = setup_correct_states_component()
+    accept_states_str = setup_accept_states_component_with_duplicates()
+    states = AutomatonDSL._parse_states(states_str)
+    accept_states = AutomatonDSL._parse_accept_states(accept_states_str, states)
+    print(accept_states)
+    assert accept_states is None
+
+
+
 def setup_correct_alphabet_component():
     return "alphabet={0,1}"
 
@@ -157,3 +183,10 @@ def test_parse_incorrect_transition_func():
     alphabet = {'0', '1'}
     transition_func = AutomatonDSL._parse_transition_func(transition_func_str, states, alphabet)
     assert transition_func is None
+
+def test_parse_automaton():
+    automaton_str = setup_correct_automaton()
+    automaton = AutomatonDSL.parse_automaton(automaton_str)
+    
+    
+test_parse_automaton()

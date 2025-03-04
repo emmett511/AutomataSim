@@ -44,6 +44,7 @@ class AutomatonDSL:
         """parses full automaton definition from input file"""
         pass
 
+
     @staticmethod
     def _parse_components(automata_file: str):
         """
@@ -99,6 +100,35 @@ class AutomatonDSL:
         if len(parsed_states) != len(set(parsed_states)):
             return None
         
+        return set(parsed_states)
+
+    @staticmethod 
+    def _parse_accept_states(accept_states: str, states: set):
+        """
+        Parses acceptstates from whitespace stripped input string of form "accept_states={<s1>,<s2>,...,<sn>}" 
+        Returns a set of strings containing the state names or None if there is a syntax error.
+        """
+        
+        # pattern match on the input string
+        accept_states_regex = re.compile(r"accept_states=\{(?P<states>[\w+\s,]+)\}")
+        match = accept_states_regex.match(accept_states)
+
+        # incorrect syntax 
+        if not match:
+            return None
+        
+        # extract states into list
+        parsed_states = match.group("states").split(",")
+
+        # incorrect syntax: no duplicates in parsed states
+        if len(parsed_states) != len(set(parsed_states)):
+            return None
+        
+        # ensure that all accept states are in the set of states
+        for state in parsed_states:
+            if state not in states:
+                return None
+
         return set(parsed_states)
 
     @staticmethod
