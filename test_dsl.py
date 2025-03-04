@@ -184,9 +184,19 @@ def test_parse_incorrect_transition_func():
     transition_func = AutomatonDSL._parse_transition_func(transition_func_str, states, alphabet)
     assert transition_func is None
 
+
+
 def test_parse_automaton():
     automaton_str = setup_correct_automaton()
-    automaton = AutomatonDSL.parse_automaton(automaton_str)
-    
-    
-test_parse_automaton()
+    automaton_dict = AutomatonDSL.parse_automaton(automaton_str)
+    assert automaton_dict["name"] == "hector"
+    assert automaton_dict["states"] == {'q0', 'q1'}
+    assert automaton_dict["alphabet"] == {'0', '1'}
+    assert automaton_dict["transition_func"] == {('q0', '0'): 'q1', ('q0', '1'): 'q0', ('q1', '0'): 'q0', ('q1', '1'): 'q1'}
+    assert automaton_dict["start_state"] == 'q0'
+    assert automaton_dict["accept_states"] == {'q1'}
+
+def test_parse_incorrect_automaton():
+    automaton_str = setup_automaton_missing_components()
+    automaton_dict = AutomatonDSL.parse_automaton(automaton_str)
+    assert automaton_dict is None

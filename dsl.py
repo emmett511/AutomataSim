@@ -42,8 +42,41 @@ class AutomatonDSL:
     @staticmethod
     def parse_automaton(automata_file: str):
         """parses full automaton definition from input file"""
-        pass
+        
+        # gather components
+        (name, statements) = AutomatonDSL._parse_components(automata_file)
+        if name is None or statements is None:
+            return None
 
+        # first parse states and alphabet (needed to ensure other components are valid)
+        for statement in statements:
+            if statement.startswith("states"):
+                states = AutomatonDSL._parse_states(statement)
+            if statement.startswith("alphabet"):
+                alphabet = AutomatonDSL._parse_alphabet(statement)
+
+        # then parse start state, accept states, and transition function
+        for statement in statements:
+            if statement.startswith("transition_func"):
+                transition_func = AutomatonDSL._parse_transition_func(statement, states, alphabet)
+            if statement.startswith("start_state"):
+                start_state = AutomatonDSL._parse_start_state(statement, states)
+            if statement.startswith("accept_states"):
+                accept_states = AutomatonDSL._parse_accept_states(statement, states)
+
+        # if any components are None, there was a syntax error somewhere
+        if None in [states, alphabet, transition_func, start_state, accept_states]:
+            return None
+                
+        # return automaton components as a dictionary
+        return {
+            "name": name,
+            "states": states,
+            "alphabet": alphabet,
+            "transition_func": transition_func,
+            "start_state": start_state,
+            "accept_states": accept_states
+        }
 
     @staticmethod
     def _parse_components(automata_file: str):
