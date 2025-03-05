@@ -1,43 +1,71 @@
 class Automata:
 
     # constructor to initialize an automata
-    def __init__(self, states, alphabet, stateTransition, starting, accepting, input):
-        self.state = states
-        self.alphabet = alphabet
-        self.stateTransition = stateTransition
-        self.input = input
-        self.starting = starting
-        self.accepting = accepting
-        self.current = starting
-        self.inputIdx = 0
+    def __init__(self, states, alphabet, stateTransition, starting, accepting):
+        self.__state = states
+        self.__alphabet = alphabet
+        self.__stateTransition = stateTransition
+        self.__starting = starting
+        self.__accepting = accepting
+        self.__current = starting
+        self.__inputIdx = 0
+
+    # input string for automata to run
+    def setInput(self, inputsList):
+
+        for c in inputsList:
+            if c not in self.__alphabet:
+                return False
+            
+        self.__inputsList = inputsList
+        return True
+
+    # returns current state of automata
+    def getState(self):
+        return self.__current
+
+
+    # resets the automata
+    def resetToBeginning(self):
+        self.__current = self.__starting
+        self.__inputIdx = 0
 
 
     # uses the dictionary of state transitions to go to the next state
     # when at end of input word, check if automata accepts input
     def nextState(self):
 
-        self.current = self.stateTransition[(self.input[self.inputIdx], self.current)]
-        self.inputIdx += 1
+        self.__current = self.__stateTransition[(self.__inputsList[self.__inputIdx], self.__current)]
+        self.__inputIdx += 1
 
-        if self.inputIdx == len(self.input):
-            return self.current == self.accepting
+        if self.__inputIdx == len(self.__inputsList):
+            return self.__current in self.__accepting
         else:
             return None
     
+
     # iterates through state transition dict to find previous state based on current and prev input symbol
     def prevState(self):
 
-        if self.inputIdx == 0:
+        if self.__inputIdx == 0:
             return
         
-        self.inputIdx -= 1
+        self.__inputIdx -= 1
 
-        for (symbol, pState), cState in self.stateTransition.items():
-            if cState == self.current and symbol == self.input[self.inputIdx]:
-                self.current = pState
+        for (symbol, pState), cState in self.__stateTransition.items():
+            if cState == self.__current and symbol == self.__inputsList[self.__inputIdx]:
+                self.__current = pState
                 break
 
+    # runs automata to completion and returns if automata accepts the input string
+    def runTillComplete(self):
+        isAccepted = None
 
-    def acceptInput(self):
-        for c in self.input:
-            self.nextState()
+        for c in self.__inputsList:
+            isAccepted = self.nextState()
+        
+        return isAccepted
+    
+
+    def getAutomataData(self):
+        return
