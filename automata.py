@@ -1,8 +1,10 @@
+
+
 class Automata:
 
     # constructor to initialize an automata
     def __init__(self, states, alphabet, stateTransition, starting, accepting):
-        self.__state = states
+        self.__states = states
         self.__alphabet = alphabet
         self.__stateTransition = stateTransition
         self.__starting = starting
@@ -66,6 +68,12 @@ class Automata:
         
         return isAccepted
     
-
+    # returns the data members of the automata
     def getAutomataData(self):
-        return
+        return {
+            "states": self.__states,
+            "alphabet": self.__alphabet,
+            "transition_func": self.__stateTransition,
+            "start_state": self.__starting,
+            "accept_states": self.__accepting
+        }
