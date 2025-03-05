@@ -12,6 +12,14 @@ class Automata:
         self.__current = starting
         self.__inputIdx = 0
         self.__inputsList = []
+        self.__prevs = []
+
+
+    # resets the automata
+    def resetToBeginning(self):
+        self.__current = self.__starting
+        self.__inputIdx = 0
+        self.__prevs = []
 
 
     # input string for automata to run
@@ -31,12 +39,6 @@ class Automata:
         return self.__current
 
 
-    # resets the automata
-    def resetToBeginning(self):
-        self.__current = self.__starting
-        self.__inputIdx = 0
-
-
     # uses the dictionary of state transitions to go to the next state
     # returns false if key is not in dictionary (automata does not accept input)
     # when at end of input word, check if automata accepts input
@@ -47,15 +49,18 @@ class Automata:
 
         try:
             next_state = self.__stateTransition[(self.__inputsList[self.__inputIdx], self.__current)]
+            self.__prevs.append(self.__current)
             self.__current = next_state
             self.__inputIdx += 1
         except KeyError:
             return False
 
-        return self.__current in self.__accepting if self.__inputIdx == len(self.__inputsList) else None
+        if self.__inputIdx == len(self.__inputsList):
+            return self.__current in self.__accepting
+        else: return None
 
 
-    # iterates through state transition dict to find previous state based on current and prev input symbol
+    # finds the previous by popping from the prevs list
     def prevState(self):
 
         if self.__inputIdx == 0:
@@ -63,10 +68,8 @@ class Automata:
         
         self.__inputIdx -= 1
 
-        for (symbol, pState), cState in self.__stateTransition.items():
-            if cState == self.__current and symbol == self.__inputsList[self.__inputIdx]:
-                self.__current = pState
-                break
+        if self.__prevs:
+            self.__current = self.__prevs.pop() 
 
 
     # runs automata to completion and returns if automata accepts the input string
