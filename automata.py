@@ -11,6 +11,8 @@ class Automata:
         self.__accepting = accepting
         self.__current = starting
         self.__inputIdx = 0
+        self.__inputsList = []
+
 
     # input string for automata to run
     def setInput(self, inputsList):
@@ -20,7 +22,9 @@ class Automata:
                 return False
             
         self.__inputsList = inputsList
+        self.resetToBeginning()
         return True
+
 
     # returns current state of automata
     def getState(self):
@@ -34,17 +38,22 @@ class Automata:
 
 
     # uses the dictionary of state transitions to go to the next state
+    # returns false if key is not in dictionary (automata does not accept input)
     # when at end of input word, check if automata accepts input
     def nextState(self):
 
-        self.__current = self.__stateTransition[(self.__inputsList[self.__inputIdx], self.__current)]
-        self.__inputIdx += 1
-
-        if self.__inputIdx == len(self.__inputsList):
-            return self.__current in self.__accepting
-        else:
+        if self.__inputIdx >= len(self.__inputsList):
             return None
-    
+
+        try:
+            next_state = self.__stateTransition[(self.__inputsList[self.__inputIdx], self.__current)]
+            self.__current = next_state
+            self.__inputIdx += 1
+        except KeyError:
+            return False
+
+        return self.__current in self.__accepting if self.__inputIdx == len(self.__inputsList) else None
+
 
     # iterates through state transition dict to find previous state based on current and prev input symbol
     def prevState(self):
@@ -59,15 +68,17 @@ class Automata:
                 self.__current = pState
                 break
 
+
     # runs automata to completion and returns if automata accepts the input string
     def runTillComplete(self):
-        isAccepted = None
 
-        for c in self.__inputsList:
+        for _ in self.__inputsList:
             isAccepted = self.nextState()
+            if isAccepted is not None: return isAccepted
         
-        return isAccepted
+        return False
     
+
     # returns the data members of the automata
     def getAutomataData(self):
         return {
