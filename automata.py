@@ -1,93 +1,85 @@
-
-
 class Automata:
+    """Simulates a finite automaton. This class is intended
+    to be created by the AutomatonDSL, which compiles formal
+    descriptions of automata into Automata instances."""
 
-    # constructor to initialize an automata
-    def __init__(self, states, alphabet, stateTransition, starting, accepting):
+    def __init__(self, states, alphabet, state_transition, starting, accepting):
         self.__states = states
         self.__alphabet = alphabet
-        self.__stateTransition = stateTransition
+        self.__state_transition = state_transition
         self.__starting = starting
         self.__accepting = accepting
         self.__current = starting
-        self.__inputIdx = 0
-        self.__inputsList = []
+        self.__input_idx = 0
+        self.__inputs_list = []
         self.__prevs = []
 
-
-    # resets the automata
-    def resetToBeginning(self):
+    def reset_to_beginning(self):
+        """resets the automaton to start state"""
         self.__current = self.__starting
-        self.__inputIdx = 0
+        self.__input_idx = 0
         self.__prevs = []
 
-
-    # input string for automata to run
-    def setInput(self, inputsList):
-
-        for c in inputsList:
+    def set_input(self, inputs_list):
+        """set FA input string """
+        for c in inputs_list:
             if c not in self.__alphabet:
                 return False
             
-        self.__inputsList = inputsList
-        self.resetToBeginning()
+        self.__inputs_list = inputs_list
+        self.reset_to_beginning()
         return True
 
-
-    # returns current state of automata
-    def getState(self):
+    def get_state(self):
+        """returns current state of automata"""
         return self.__current
 
-
-    # uses the dictionary of state transitions to go to the next state
-    # returns false if key is not in dictionary (automata does not accept input)
-    # when at end of input word, check if automata accepts input
-    def nextState(self):
-
-        if self.__inputIdx >= len(self.__inputsList):
+    def next_state(self):
+        """    
+        uses the dictionary of state transitions to go to the next state
+        returns false if key is not in dictionary (automata does not accept input)
+        when at end of input word, check if automata accepts input
+        """
+        if self.__input_idx >= len(self.__inputs_list):
             return None
 
         try:
-            next_state = self.__stateTransition[(self.__inputsList[self.__inputIdx], self.__current)]
+            next_state = self.__state_transition[(self.__inputs_list[self.__input_idx], self.__current)]
             self.__prevs.append(self.__current)
             self.__current = next_state
-            self.__inputIdx += 1
+            self.__input_idx += 1
         except KeyError:
             return False
 
-        if self.__inputIdx == len(self.__inputsList):
+        if self.__input_idx == len(self.__inputs_list):
             return self.__current in self.__accepting
         else: return None
 
 
-    # finds the previous by popping from the prevs list
-    def prevState(self):
-
-        if self.__inputIdx == 0:
+    def prev_state(self):
+        """finds the prev state by popping from the prevs list"""
+        if self.__input_idx == 0:
             return
         
-        self.__inputIdx -= 1
+        self.__input_idx -= 1
 
         if self.__prevs:
             self.__current = self.__prevs.pop() 
 
-
-    # runs automata to completion and returns if automata accepts the input string
-    def runTillComplete(self):
-
-        for _ in self.__inputsList:
-            isAccepted = self.nextState()
-            if isAccepted is not None: return isAccepted
+    def run_till_complete(self):
+        """runs automata to completion and returns if automata accepts the input string"""
+        for _ in self.__inputs_list:
+            is_accepted = self.next_state()
+            if is_accepted is not None: return is_accepted
         
         return False
     
-
-    # returns the data members of the automata
-    def getAutomataData(self):
+    def get_automata_data(self):
+        """returns the data members of the automata"""
         return {
             "states": self.__states,
             "alphabet": self.__alphabet,
-            "transition_func": self.__stateTransition,
+            "transition_func": self.__state_transition,
             "start_state": self.__starting,
             "accept_states": self.__accepting
         }
