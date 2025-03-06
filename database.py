@@ -42,7 +42,10 @@ class DBMS:
         conn.close()
 
     def create_user(self, username, password):
-        """Create a new user with a hashed password."""
+        """Create a new user with a hashed password, ensuring username is valid."""
+        if not username or username.strip() == "":
+            raise ValueError("Username cannot be empty or only spaces.")
+
         password_hash = hashlib.sha256(password.encode()).hexdigest()
         conn = self.connect()
         cursor = conn.cursor()
@@ -50,20 +53,26 @@ class DBMS:
         try:
             cursor.execute("INSERT INTO USER (username, password_hash) VALUES (?, ?)", (username, password_hash))
             conn.commit()
-            print(f"User {username} created successfully.")
+            print(f"User '{username}' created successfully.")
         except sqlite3.IntegrityError:
             print("Error: Username already exists.")
+            raise ValueError("Username already exists.")
         finally:
             conn.close()
 
     def add_automaton(self, user_id, states, start_state, accept_states, state_transition_func, alphabet):
-        """Insert a new automaton into the database."""
+        """Insert a new automaton into the database, ensuring all fields are valid."""
+        if not all([states, start_state, accept_states, state_transition_func, alphabet]):
+            raise ValueError("Automaton fields cannot be empty.")
+
         conn = self.connect()
         cursor = conn.cursor()
+        
         cursor.execute(
             "INSERT INTO AUTOMATA (user_id, states, start_state, accept_states, state_transition_func, alphabet) VALUES (?, ?, ?, ?, ?, ?)",
             (user_id, states, start_state, accept_states, state_transition_func, alphabet)
         )
+        
         conn.commit()
         conn.close()
         print("Automaton added successfully.")

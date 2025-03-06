@@ -16,6 +16,7 @@ def db():
     
     return db_instance
 
+# 🔸 1️⃣ Test Creating a User
 def test_create_user(db):
     """Test user creation in the database."""
     db.create_user("test_user", "securepassword")
@@ -28,21 +29,54 @@ def test_create_user(db):
 
     assert user is not None
     assert user[1] == "test_user"  # Username column
-    assert len(user[2]) == 64  # Hashed password should be a SHA-256 hash (64 characters)
+    assert len(user[2]) == 64, f"Expected hash length 64, got {len(user[2])}: {user[2]}"
 
+# 🔸 2️⃣ Test Duplicate User Handling
 def test_duplicate_user(db):
-    """Test that creating a duplicate user is not allowed."""
+    """Test that creating a duplicate user raises a ValueError and does not insert another record."""
     db.create_user("test_user", "securepassword")
-    db.create_user("test_user", "securepassword")  # Should fail
+    
+    # Expect ValueError when trying to create a duplicate user
+    with pytest.raises(ValueError, match="Username already exists"):
+        db.create_user("test_user", "securepassword")  # Should fail
 
+    # Check the database to ensure only one entry exists
     conn = db.connect()
     cursor = conn.cursor()
     cursor.execute("SELECT COUNT(*) FROM USER WHERE username = ?", ("test_user",))
     count = cursor.fetchone()[0]
     conn.close()
 
-    assert count == 1  # Should only be one entry for "test_user"
+    assert count == 1, f"Expected 1 user record for 'test_user', but found {count}"
 
+
+# 🔸 3️⃣ Test Case Sensitivity of Usernames
+def test_case_sensitive_usernames(db):
+    """Test whether usernames are case-sensitive."""
+    db.create_user("test_user", "password123")
+    db.create_user("Test_User", "password123")  # Should succeed if case-sensitive
+
+    conn = db.connect()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM USER WHERE username = 'test_user'")
+    lower_case_count = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM USER WHERE username = 'Test_User'")
+    upper_case_count = cursor.fetchone()[0]
+    
+    conn.close()
+
+    assert lower_case_count == 1, "Lowercase 'test_user' was not inserted properly."
+    assert upper_case_count == 1, "Uppercase 'Test_User' was not inserted properly."
+
+# 🔸 4️⃣ Test Invalid Usernames
+@pytest.mark.parametrize("username", ["", None, "  "])
+def test_invalid_username(db, username):
+    """Ensure that invalid usernames are not allowed."""
+    with pytest.raises(Exception):  # Expect failure
+        db.create_user(username, "password123")
+
+# 🔸 5️⃣ Test Adding an Automaton
 def test_add_automaton(db):
     """Test adding an automaton to the database."""
     db.create_user("test_user", "securepassword")
@@ -69,6 +103,7 @@ def test_add_automaton(db):
     assert automata[5] == "{'q0': {'a': 'q1'}, 'q1': {'b': 'q2'}}"
     assert automata[6] == "a,b"
 
+# 🔸 6️⃣ Test Retrieving Automata
 def test_get_automata_by_user(db):
     """Test retrieving automata associated with a user."""
     db.create_user("test_user", "securepassword")
@@ -87,6 +122,7 @@ def test_get_automata_by_user(db):
     assert automata[0][1] == user_id  # Ensure automaton belongs to correct user
     assert automata[0][2] == "q0,q1,q2"
 
+# 🔸 7️⃣ Test No Automata for a User
 def test_no_automata_for_user(db):
     """Test that retrieving automata for a user with no automata returns an empty list."""
     db.create_user("empty_user", "password")
@@ -101,3 +137,35 @@ def test_no_automata_for_user(db):
 
     assert automata == []  # Should be an empty list
 
+# 🔸 8️⃣ Test Automaton Validation (Missing Fields)
+def test_add_automaton_invalid(db):
+    """Test that inserting an automaton with missing fields fails."""
+    db.create_user("test_user", "securepassword")
+
+    conn = db.connect()
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id FROM USER WHERE username = ?", ("test_user",))
+    user_id = cursor.fetchone()[0]
+    conn.close()
+
+    # Try adding an automaton with missing fields (invalid input)
+    with pytest.raises(Exception):  
+        db.add_automaton(user_id, "", "q0", "q2", "", "a,b")  # Empty states and transitions
+
+    with pytest.raises(Exception):  
+        db.add_automaton(user_id, "q0,q1,q2", "", "q2", "{'q0': {'a': 'q1'}}", "a,b")  # Missing start state
+
+# 🔸 9️⃣ Test SQL Injection Protection
+def test_sql_injection_protection(db):
+    """Ensure that SQL injection attempts fail."""
+    malicious_username = "test_user'); DROP TABLE USER; --"
+    
+    db.create_user(malicious_username, "securepassword")
+
+    conn = db.connect()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM USER WHERE username = ?", (malicious_username,))
+    user = cursor.fetchone()
+    conn.close()
+
+    assert user is not None, "SQL injection attempt may have succeeded!"
