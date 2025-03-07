@@ -1,64 +1,53 @@
 import sqlite3
-import hashlib
+import bcrypt
 
 class DBMS:
     def __init__(self, db_name="automata.db"):
-        self.db_name = db_name
-        self._initialize_database()  # Ensure tables exist on initialization
+        self.db_name = db_name  # Just store the name, don't reinitialize DB
 
     def connect(self):
         """Connect to the SQLite database."""
         return sqlite3.connect(self.db_name)
-
-    def _initialize_database(self):
-        """Ensure necessary tables exist in the database."""
-        conn = self.connect()
-        cursor = conn.cursor()
-        
-        # Create USER table
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS USER (
-            user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL
-        );
-        """)
-
-        # Create AUTOMATA table
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS AUTOMATA (
-            automaton_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            states TEXT NOT NULL,
-            start_state TEXT NOT NULL,
-            accept_states TEXT NOT NULL,
-            state_transition_func TEXT NOT NULL,
-            alphabet TEXT NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES USER (user_id) ON DELETE CASCADE
-        );
-        """)
-
-        conn.commit()
-        conn.close()
 
     def create_user(self, username, password):
         """Create a new user with a hashed password, ensuring username is valid."""
         if not username or username.strip() == "":
             raise ValueError("Username cannot be empty or only spaces.")
 
-        password_hash = hashlib.sha256(password.encode()).hexdigest()
         conn = self.connect()
         cursor = conn.cursor()
 
+        # Check if username already exists
+        cursor.execute("SELECT user_id FROM USER WHERE username = ?", (username,))
+        if cursor.fetchone():
+            conn.close()
+            raise ValueError("Username already exists.")
+
+        # Hash the password using bcrypt
+        password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+
         try:
-            cursor.execute("INSERT INTO USER (username, password_hash) VALUES (?, ?)", (username, password_hash))
+            cursor.execute("INSERT INTO USER (username, password_hash) VALUES (?, ?)", 
+                           (username, password_hash))
             conn.commit()
             print(f"User '{username}' created successfully.")
-        except sqlite3.IntegrityError:
-            print("Error: Username already exists.")
-            raise ValueError("Username already exists.")
         finally:
             conn.close()
+
+    def verify_user(self, username, password):
+        """Verify a user's login credentials."""
+        conn = self.connect()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT password_hash FROM USER WHERE username = ?", (username,))
+        result = cursor.fetchone()
+        conn.close()
+
+        if result:
+            stored_hash = result[0]
+            if bcrypt.checkpw(password.encode(), stored_hash):
+                return True
+        return False
 
     def add_automaton(self, user_id, states, start_state, accept_states, state_transition_func, alphabet):
         """Insert a new automaton into the database, ensuring all fields are valid."""

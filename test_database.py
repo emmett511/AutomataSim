@@ -1,4 +1,5 @@
 import pytest
+import bcrypt
 from database import DBMS
 
 @pytest.fixture
@@ -16,7 +17,7 @@ def db():
     
     return db_instance
 
-# 🔸 1️⃣ Test Creating a User
+# 🔸 1️⃣ Fix: Test Creating a User with bcrypt Validation
 def test_create_user(db):
     """Test user creation in the database."""
     db.create_user("test_user", "securepassword")
@@ -29,7 +30,13 @@ def test_create_user(db):
 
     assert user is not None
     assert user[1] == "test_user"  # Username column
-    assert len(user[2]) == 64, f"Expected hash length 64, got {len(user[2])}: {user[2]}"
+
+    # Ensure the stored password hash is a bcrypt hash
+    stored_hash = user[2]
+    
+    # Ensure it's a bcrypt hash by checking it starts with "$2b$"
+    assert stored_hash.startswith(b"$2b$"), f"Expected bcrypt hash, got {stored_hash}"
+    assert len(stored_hash) >= 59, f"Unexpected bcrypt hash length: {len(stored_hash)}"
 
 # 🔸 2️⃣ Test Duplicate User Handling
 def test_duplicate_user(db):
@@ -48,7 +55,6 @@ def test_duplicate_user(db):
     conn.close()
 
     assert count == 1, f"Expected 1 user record for 'test_user', but found {count}"
-
 
 # 🔸 3️⃣ Test Case Sensitivity of Usernames
 def test_case_sensitive_usernames(db):
