@@ -1,8 +1,6 @@
 import pytest
 from dsl import AutomatonDSL
 
-
-
 def setup_correct_automaton():
     """Correct Automata Description"""
     return """
@@ -188,13 +186,13 @@ def test_parse_incorrect_transition_func():
 
 def test_parse_automaton():
     automaton_str = setup_correct_automaton()
-    automaton_dict = AutomatonDSL.parse_automaton(automaton_str)
-    assert automaton_dict["name"] == "hector"
-    assert automaton_dict["states"] == {'q0', 'q1'}
-    assert automaton_dict["alphabet"] == {'0', '1'}
-    assert automaton_dict["transition_func"] == {('q0', '0'): 'q1', ('q0', '1'): 'q0', ('q1', '0'): 'q0', ('q1', '1'): 'q1'}
-    assert automaton_dict["start_state"] == 'q0'
-    assert automaton_dict["accept_states"] == {'q1'}
+    automaton = AutomatonDSL.parse_automaton(automaton_str)
+    assert automaton._Automata__name == "hector"
+    assert automaton._Automata__states == {'q0', 'q1'}
+    assert automaton._Automata__alphabet == {'0', '1'}
+    assert automaton._Automata__state_transition == {('q0', '0'): 'q1', ('q0', '1'): 'q0', ('q1', '0'): 'q0', ('q1', '1'): 'q1'}
+    assert automaton._Automata__starting == 'q0'
+    assert automaton._Automata__accepting == {'q1'}
 
 def test_parse_incorrect_automaton():
     automaton_str = setup_automaton_missing_components()

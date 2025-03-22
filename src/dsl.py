@@ -1,4 +1,5 @@
 import re
+from automata import Automata
 
 class AutomatonDSL:
     """
@@ -67,16 +68,9 @@ class AutomatonDSL:
         # if any components are None, there was a syntax error somewhere
         if None in [states, alphabet, transition_func, start_state, accept_states]:
             return None
-                
-        # return automaton components as a dictionary
-        return {
-            "name": name,
-            "states": states,
-            "alphabet": alphabet,
-            "transition_func": transition_func,
-            "start_state": start_state,
-            "accept_states": accept_states
-        }
+        
+        # return compiled automaton instance
+        return Automata(states, alphabet, transition_func, start_state, accept_states, name)
 
     @staticmethod
     def _parse_components(automata_file: str):
