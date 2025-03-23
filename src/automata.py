@@ -3,7 +3,7 @@ class Automata:
     to be created by the AutomatonDSL, which compiles formal
     descriptions of automata into Automata instances."""
 
-    def __init__(self, states, alphabet, state_transition, starting, accepting):
+    def __init__(self, states, alphabet, state_transition, starting, accepting, name=None):
         self.__states = states
         self.__alphabet = alphabet
         self.__state_transition = state_transition
@@ -13,6 +13,7 @@ class Automata:
         self.__input_idx = 0
         self.__inputs_list = []
         self.__prevs = []
+        self.__name = name
 
     def reset_to_beginning(self):
         """resets the automaton to start state"""
@@ -83,3 +84,23 @@ class Automata:
             "start_state": self.__starting,
             "accept_states": self.__accepting
         }
+
+    def char_in_alphabet(self, char) -> bool:
+        for c in char:
+            if c not in self.__alphabet:
+                return False
+        return True
+
+    def __repr__(self):
+        return f"""
+            Automata: {self.__name}\n
+            states:\n
+            {self.__states}\n
+            alphabet:\n
+            {self.__alphabet}\n
+            state transition function:\n
+            {self.__state_transition}\n
+            start state:\n
+            {self.__starting}\n
+            accepting states:\n
+            {self.__accepting}"""
