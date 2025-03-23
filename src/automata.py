@@ -85,9 +85,15 @@ class Automata:
             "accept_states": self.__accepting
         }
 
+    def char_in_alphabet(self, char) -> bool:
+        for c in char:
+            if c not in self.__alphabet:
+                return False
+        return True
+
     def __repr__(self):
         return f"""
-            Automata: {self.__name}\n\n
+            Automata: {self.__name}\n
             states:\n
             {self.__states}\n
             alphabet:\n
