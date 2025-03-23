@@ -84,3 +84,17 @@ class Automata:
             "start_state": self.__starting,
             "accept_states": self.__accepting
         }
+
+    def __repr__(self):
+        return f"""
+            Automata: {self.__name}\n\n
+            states:\n
+            {self.__states}\n
+            alphabet:\n
+            {self.__alphabet}\n
+            state transition function:\n
+            {self.__state_transition}\n
+            start state:\n
+            {self.__starting}\n
+            accepting states:\n
+            {self.__accepting}"""
