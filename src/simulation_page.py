@@ -131,6 +131,15 @@ class SimulationPage(tk.Frame):
 
     def logout(self):
         self.program_logic.logout()
+        self.program_logic.current_automata = None
+        self.program_logic.valid_automata = False
+        self.program_logic.valid_input_string = False
+        self.automata_def_label.config(text="No automaton inputted yet...")
+        self.input_string_label.config(text="No input string inputted yet...")
+        if hasattr(self, 'canvas'):
+            self.canvas.destroy()
+
+        self.bottom_button_frame.pack_forget()  # hide prev/next if shown
         self.controller.show_frame("HomePage")
 
 if __name__ == "__main__":
