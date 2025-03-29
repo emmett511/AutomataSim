@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import simpledialog
 from program_logic import ProgramLogic
+from tkinter import *
+
 
 class SimulationPage(tk.Frame):
     """Simulation page for inputting automata, strings, and running simulations."""
@@ -45,6 +47,11 @@ class SimulationPage(tk.Frame):
         # Store the automata string
         self.automata_description = self.default_automata_definition
 
+        # prev and next buttons
+        self.bottom_button_frame = tk.Frame(self)
+        self.button1 = tk.Button(self.bottom_button_frame, text="Previous state", command=self.prev)
+        self.button2 = tk.Button(self.bottom_button_frame, text="Next State", command=self.next)
+
     def input_automata(self):
         """Popup for user to enter automata dsl description"""
         # popup window
@@ -60,6 +67,10 @@ class SimulationPage(tk.Frame):
             self.automata_def_label.config(text=self.program_logic.current_automata)
             self.input_string_label.config(text="No input string inputted yet...") # reset for new automaton
             popup.destroy()
+
+            self.program_logic.visualizeAutomata(self.program_logic.current_automata)  
+            self.display_automata()
+
         save_button = tk.Button(popup, text="Accept", command=compile_automata)
         save_button.pack(pady=10)
 
@@ -75,6 +86,13 @@ class SimulationPage(tk.Frame):
                 self.program_logic.set_input_string(text_widget.get("1.0", "end-1c"))
                 self.input_string_label.config(text=self.program_logic.input_string)
                 popup.destroy()
+
+                self.program_logic.current_automata.set_input(self.program_logic.input_string)
+                # show prev and next buttons after accepted input
+                self.bottom_button_frame.pack(side=tk.BOTTOM, pady=2)
+                self.button1.pack(side=tk.LEFT, padx=10)
+                self.button2.pack(side=tk.LEFT, padx=10)
+
             save_button = tk.Button(popup, text="Accept", command=accept_input_string)
             save_button.pack(pady=10)
         else:
@@ -82,6 +100,31 @@ class SimulationPage(tk.Frame):
                 "Error", 
                 "Valid automata must be inputted before inputting strings."
                 )
+
+    def display_automata(self):
+        if hasattr(self, 'canvas'):
+            self.canvas.destroy() 
+
+        self.canvas = Canvas(self, width=1000, height=500)
+        self.canvas.pack()
+
+        try:
+            self.automata_img = PhotoImage(file="automata_visualization.png")
+            self.canvas.create_image(300, 10, anchor=NW, image=self.automata_img)
+        except tk.TclError:
+            tk.messagebox.showerror("Error", "Could not visualize automata.")
+    
+    def prev(self):
+        self.program_logic.current_automata.prev_state()
+        self.program_logic.visualizeAutomata(self.program_logic.current_automata)  
+        self.display_automata()
+    
+    def next(self):
+        self.program_logic.current_automata.next_state()
+        self.program_logic.visualizeAutomata(self.program_logic.current_automata)  
+        self.display_automata()
+
+
 
 if __name__ == "__main__":
     root = tk.Tk()

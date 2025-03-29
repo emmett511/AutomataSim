@@ -29,7 +29,7 @@ class ProgramLogic:
             self.valid_input_string = False
             self.input_string = "SYNTAX ERROR:" + "\n\n" + input_string
 
-
+    @staticmethod
     # creates a visualization of the current state of the automata using graphviz
     def visualizeAutomata(automata):
 
@@ -73,9 +73,9 @@ class ProgramLogic:
         
         # iterate through transition function, creating edges between states
         for key in transition_func:
-            visualized_DFA.edge(key[1], transition_func[key], label = key[0])
+            visualized_DFA.edge(key[0], transition_func[key], label = key[1])
         
-        visualized_DFA.render('automata_visualization', format='png', view=True)
+        visualized_DFA.render('automata_visualization', format='png', view=False, cleanup=True)
 
         dot_file = 'graph_layout'
         visualized_DFA.render(dot_file, format='dot')   # generates dot file
