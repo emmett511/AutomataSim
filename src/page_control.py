@@ -3,6 +3,7 @@ from program_logic import ProgramLogic
 from login_page import LoginPage
 from create_account_page import CreateAccountPage
 from home_page import HomePage
+from simulation_page import SimulationPage
 
 class AppController(tk.Tk):
     def __init__(self):
@@ -17,15 +18,18 @@ class AppController(tk.Tk):
         page_classes = {
             "HomePage": HomePage,
             "LoginPage": LoginPage,
-            "CreateAccountPage": CreateAccountPage
+            "CreateAccountPage": CreateAccountPage,
+            "SimulationPage": SimulationPage
         }
 
         # Create and pack each page
         for name, PageClass in page_classes.items():
-            frame = PageClass(parent=self, controller=self)
+            if name == "SimulationPage":
+                frame = PageClass(parent=self, program_logic=self.program_logic)
+            else:
+                frame = PageClass(parent=self, controller=self)
             self.frames[name] = frame
             frame.place(relwidth=1, relheight=1)
-
         self.show_frame("HomePage")
 
     def show_frame(self, page_name):
