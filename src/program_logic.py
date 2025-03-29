@@ -1,10 +1,33 @@
+import sqlite3
+import bcrypt
 from dsl import AutomatonDSL
+from database import DBMS
 
 class ProgramLogic:
     def __init__(self):
         self.current_automata = None
         self.valid_automata = False
         self.valid_input_string = False
+
+        self.current_user = None # tracks logged in user
+        self.dbms = DBMS()
+
+    def create_account(self, user_name, password):
+        try:
+            self.dbms.create_user(user_name, password)
+            return True
+        except ValueError:
+            return False
+
+    def login(self, user_name, password):
+        success = self.dbms.verify_user(user_name, password)
+        if success:
+            self.current_user = user_name
+            return True
+        return False
+
+    def logout(self):
+        self.current_user = None
 
     def compile_automata(self, automaton_def: str):
         """compiles an automata from description written in automaton dsl. 
