@@ -26,7 +26,6 @@ class LoginPage(tk.Frame):
         success = self.program_logic.login(username, password)
         if success:
             messagebox.showinfo("Login Successful", f"Welcome, {username}!")
-            # Replace with your main app frame later
-            # self.controller.show_frame("MainAppPage")
+            self.controller.show_frame("SimulationPage")
         else:
             messagebox.showerror("Login Failed", "Invalid credentials.")
