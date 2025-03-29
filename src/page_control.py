@@ -25,7 +25,7 @@ class AppController(tk.Tk):
         # Create and pack each page
         for name, PageClass in page_classes.items():
             if name == "SimulationPage":
-                frame = PageClass(parent=self, program_logic=self.program_logic)
+                frame = PageClass(parent=self, program_logic=self.program_logic, controller=self)
             else:
                 frame = PageClass(parent=self, controller=self)
             self.frames[name] = frame

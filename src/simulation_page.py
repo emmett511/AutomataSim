@@ -9,11 +9,16 @@ class SimulationPage(tk.Frame):
     default_input_string = "No input string inputted yet..."
     default_automata_definition = "No automata definition inputted yet..."
 
-    def __init__(self, parent, program_logic: ProgramLogic):
+    def __init__(self, parent, program_logic: ProgramLogic, controller):
         super().__init__(parent)
 
         # NOTE: when combining all frames together, this will need to be rethought
         self.program_logic = program_logic 
+
+        self.controller = controller
+        self.logged_in_label = tk.Label(self, text=f"Logged in as: {self.program_logic.current_user}")
+        self.logged_in_label.pack(pady=5)
+        tk.Button(self, text="Logout", command=self.logout).pack(pady=5)
 
         # window size
         self.master.geometry("2000x1000") # type: ignore
@@ -124,7 +129,9 @@ class SimulationPage(tk.Frame):
         self.program_logic.visualizeAutomata(self.program_logic.current_automata)  
         self.display_automata()
 
-
+    def logout(self):
+        self.program_logic.logout()
+        self.controller.show_frame("HomePage")
 
 if __name__ == "__main__":
     root = tk.Tk()
