@@ -34,6 +34,11 @@ class AppController(tk.Tk):
 
     def show_frame(self, page_name):
         frame = self.frames[page_name]
+
+        # If the frame has an update method, call it when shown
+        if hasattr(frame, "update_logged_in_user"):
+            frame.update_logged_in_user()
+
         frame.tkraise()
 
 if __name__ == "__main__":

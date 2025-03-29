@@ -142,6 +142,9 @@ class SimulationPage(tk.Frame):
         self.bottom_button_frame.pack_forget()  # hide prev/next if shown
         self.controller.show_frame("HomePage")
 
+    def update_logged_in_user(self):
+        self.logged_in_label.config(text=f"Logged in as: {self.program_logic.current_user}")
+
 if __name__ == "__main__":
     root = tk.Tk()
     root.title("Simulation Page")
