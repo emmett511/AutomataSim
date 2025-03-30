@@ -1,6 +1,5 @@
 
-# Sprint 1 Report
-Video Link: TODO: update link
+# Sprint 2 Report
 
 ## What's New (User Facing)
 
