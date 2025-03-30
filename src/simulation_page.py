@@ -21,7 +21,7 @@ class SimulationPage(tk.Frame):
         tk.Button(self, text="Logout", command=self.logout).pack(pady=5)
 
         # window size
-        self.master.geometry("2000x1000") # type: ignore
+        self.master.geometry("1000x500") # type: ignore
         button_frame = tk.Frame(self)
         button_frame.pack(pady=20)
         
@@ -56,6 +56,7 @@ class SimulationPage(tk.Frame):
         self.bottom_button_frame = tk.Frame(self)
         self.button1 = tk.Button(self.bottom_button_frame, text="Previous state", command=self.prev)
         self.button2 = tk.Button(self.bottom_button_frame, text="Next State", command=self.next)
+        self.bottom_button_frame.pack(pady=10, after=button_frame)
 
     def input_automata(self):
         """Popup for user to enter automata dsl description"""
