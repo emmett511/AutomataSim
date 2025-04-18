@@ -61,14 +61,19 @@ class SimulationPage(tk.Frame):
         # text box
         text_widget = tk.Text(popup, width=60, height=20)
         text_widget.pack(padx=10, pady=10)
-        # button to accept user input            
+        # button to accept user input
+
+        # clear automata when inputting a new one
+        if hasattr(self, 'canvas'):
+            self.canvas.destroy() 
+
         def compile_automata():
             self.program_logic.compile_automata(text_widget.get("1.0", "end-1c"))
             self.automata_def_label.config(text=self.program_logic.current_automata)
             self.input_string_label.config(text="No input string inputted yet...") # reset for new automaton
             popup.destroy()
 
-            self.program_logic.visualizeAutomata(self.program_logic.current_automata)  
+            self.program_logic.visualizeAutomata(self.program_logic.current_automata)
             self.display_automata()
 
         save_button = tk.Button(popup, text="Accept", command=compile_automata)
@@ -87,8 +92,14 @@ class SimulationPage(tk.Frame):
                 self.input_string_label.config(text=self.program_logic.input_string)
                 popup.destroy()
 
+
+                # re display from start state when new valid input inputted
                 self.program_logic.current_automata.set_input(self.program_logic.input_string)
+                self.program_logic.visualizeAutomata(self.program_logic.current_automata)
+                self.display_automata()
+
                 # show prev and next buttons after accepted input
+                self.program_logic.current_automata.reset_to_beginning()
                 self.bottom_button_frame.pack(side=tk.BOTTOM, pady=2)
                 self.button1.pack(side=tk.LEFT, padx=10)
                 self.button2.pack(side=tk.LEFT, padx=10)
