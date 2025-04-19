@@ -1,7 +1,76 @@
 import tkinter as tk
-from tkinter import simpledialog
+from tkinter import messagebox, simpledialog
 from program_logic import ProgramLogic
-from tkinter import *
+
+class HomePage(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
+        self.master.geometry("600x400")
+
+        tk.Label(self, text="Welcome to Automata Simulator", font=("Arial", 16)).pack(pady=30)
+
+        tk.Button(self, text="Log In", command=lambda: controller.show_frame("LoginPage")).pack(pady=10)
+        tk.Button(self, text="Create Account", command=lambda: controller.show_frame("CreateAccountPage")).pack(pady=10)
+        tk.Button(self, text="Exit", command=self.master.quit).pack(pady=10)
+
+class LoginPage(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
+        self.program_logic = controller.program_logic
+        self.master.geometry("600x400")  # window size
+
+        tk.Label(self, text="Username:").pack(pady=5)
+        self.username_entry = tk.Entry(self)
+        self.username_entry.pack()
+
+        tk.Label(self, text="Password:").pack(pady=5)
+        self.password_entry = tk.Entry(self, show="*")
+        self.password_entry.pack()
+
+        tk.Button(self, text="Login", command=self.login).pack(pady=10)
+        tk.Button(self, text="Back to Home", command=lambda: controller.show_frame("HomePage")).pack()
+
+    def login(self):
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+        success = self.program_logic.login(username, password)
+        if success:
+            messagebox.showinfo("Login Successful", f"Welcome, {username}!")
+            self.controller.show_frame("SimulationPage")
+        else:
+            messagebox.showerror("Login Failed", "Invalid credentials.")
+
+class CreateAccountPage(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
+        self.program_logic = controller.program_logic
+        self.master.geometry("600x400")
+
+        tk.Label(self, text="Create Account").pack(pady=10)
+
+        tk.Label(self, text="Username:").pack()
+        self.username_entry = tk.Entry(self)
+        self.username_entry.pack()
+
+        tk.Label(self, text="Password:").pack()
+        self.password_entry = tk.Entry(self, show="*")
+        self.password_entry.pack()
+
+        tk.Button(self, text="Create Account", command=self.create_account).pack(pady=10)
+        tk.Button(self, text="Back to Home", command=lambda: controller.show_frame("HomePage")).pack()
+
+    def create_account(self):
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+        success = self.program_logic.create_account(username, password)
+        if success:
+            messagebox.showinfo("Account Created", "Account successfully created!")
+            self.controller.show_frame("LoginPage")
+        else:
+            messagebox.showerror("Account Creation Failed", "Invalid credentials or username taken.")
 
 
 class SimulationPage(tk.Frame):
@@ -111,12 +180,12 @@ class SimulationPage(tk.Frame):
         if hasattr(self, 'canvas'):
             self.canvas.destroy() 
 
-        self.canvas = Canvas(self, width=1000, height=500)
+        self.canvas = tk.Canvas(self, width=1000, height=500)
         self.canvas.pack()
 
         try:
-            self.automata_img = PhotoImage(file="automata_visualization.png")
-            self.canvas.create_image(300, 10, anchor=NW, image=self.automata_img)
+            self.automata_img = tk.PhotoImage(file="automata_visualization.png")
+            self.canvas.create_image(300, 10, anchor=tk.NW, image=self.automata_img)
         except tk.TclError:
             tk.messagebox.showerror("Error", "Could not visualize automata.")
     
@@ -146,9 +215,43 @@ class SimulationPage(tk.Frame):
     def update_logged_in_user(self):
         self.logged_in_label.config(text=f"Logged in as: {self.program_logic.current_user}")
 
+
+class GUI(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Automata Simulator")
+        self.geometry("600x400")
+
+        self.program_logic = ProgramLogic()
+        self.frames = {}
+
+        # map classes to names
+        page_classes = {
+            "HomePage": HomePage,
+            "LoginPage": LoginPage,
+            "CreateAccountPage": CreateAccountPage,
+            "SimulationPage": SimulationPage
+        }
+
+        # Create and pack each page
+        for name, PageClass in page_classes.items():
+            if name == "SimulationPage":
+                frame = PageClass(parent=self, program_logic=self.program_logic, controller=self)
+            else:
+                frame = PageClass(parent=self, controller=self)
+            self.frames[name] = frame
+            frame.place(relwidth=1, relheight=1)
+        self.show_frame("HomePage")
+
+    def show_frame(self, page_name):
+        frame = self.frames[page_name]
+
+        # If the frame has an update method, call it when shown
+        if hasattr(frame, "update_logged_in_user"):
+            frame.update_logged_in_user()
+
+        frame.tkraise()
+
 if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Simulation Page")
-    page = SimulationPage(root, ProgramLogic())
-    page.pack(fill="both", expand=True)
-    root.mainloop()
+    app = GUI()
+    app.mainloop()

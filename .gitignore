@@ -6,3 +6,4 @@ venv/
 *.png
 graph_layout
 *.dot
+*.db
