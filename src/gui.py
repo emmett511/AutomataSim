@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox, simpledialog
 from program_logic import ProgramLogic
+from PIL import Image, ImageTk
+from PIL.Image import Resampling
 
 class HomePage(tk.Frame):
     def __init__(self, parent, controller):
@@ -110,10 +112,6 @@ class SimulationPage(tk.Frame):
             )
         self.input_string_button.pack(side=tk.LEFT, padx=5)
         
-        # displays automata definition
-        self.automata_def_label = tk.Label(self, text="No automaton inputted yet...")
-        self.automata_def_label.pack(pady=10)
-
         # displays input string
         self.input_string_label = tk.Label(self, text=self.default_input_string)
         self.input_string_label.pack(pady=10)
@@ -139,7 +137,6 @@ class SimulationPage(tk.Frame):
         # button to accept user input            
         def compile_automata():
             self.program_logic.compile_automata(text_widget.get("1.0", "end-1c"))
-            self.automata_def_label.config(text=self.program_logic.current_automata)
             self.input_string_label.config(text="No input string inputted yet...") # reset for new automaton
             popup.destroy()
 
@@ -178,17 +175,38 @@ class SimulationPage(tk.Frame):
 
     def display_automata(self):
         if hasattr(self, 'canvas'):
-            self.canvas.destroy() 
-
-        self.canvas = tk.Canvas(self, width=1000, height=500)
-        self.canvas.pack()
-
+            self.canvas.destroy()
+        self.canvas = tk.Canvas(self)
+        self.canvas.pack(fill='both', expand=True)
         try:
-            self.automata_img = tk.PhotoImage(file="automata_visualization.png")
-            self.canvas.create_image(300, 10, anchor=tk.NW, image=self.automata_img)
-        except tk.TclError:
-            tk.messagebox.showerror("Error", "Could not visualize automata.")
-    
+            # load and bind image w/ resizing function for dynamic resizing
+            self.original_image = Image.open("automata_visualization.png")
+            self.canvas.bind("<Configure>", self._resize_image)
+        except Exception as e:
+            tk.messagebox.showerror("Error", f"Could not visualize automata: {e}")
+
+    def _resize_image(self, event):
+
+        # Get current aspect ratio of img and canvas 
+        image_ratio = self.original_image.width / self.original_image.height
+        canvas_ratio = event.width / event.height
+
+        # ensure image fits from top to bottom w/ same aspect ratio
+        width, height = event.width, event.height
+        if canvas_ratio > image_ratio:
+            width = int(image_ratio * height) # make image skinnier
+        else:
+            height = int(width / image_ratio) # make image fatter
+
+        # resize the image w/ PIL 
+        resized = self.original_image.resize((width, height), Resampling.LANCZOS)
+        self.automata_img = ImageTk.PhotoImage(resized)
+
+        # place resized image into the center of the canvas
+        x, y = event.width // 2, event.height // 2
+        self.canvas.delete("all")
+        self.canvas.create_image(x, y, anchor=tk.CENTER, image=self.automata_img)
+
     def prev(self):
         self.program_logic.current_automata.prev_state()
         self.program_logic.visualizeAutomata(self.program_logic.current_automata)  

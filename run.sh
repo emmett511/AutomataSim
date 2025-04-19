@@ -15,5 +15,5 @@ if [ ! -f "automata.db" ]; then
     python3 db_setup.py
 fi
 
-pip install graphviz bcrypt tk
+pip install graphviz bcrypt tk Pillow
 python3 gui.py
