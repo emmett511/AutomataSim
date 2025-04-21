@@ -184,7 +184,7 @@ class SimulationPage(tk.Frame):
         if hasattr(self, 'canvas'):
             self.canvas.destroy()
         self.canvas = tk.Canvas(self)
-        self.canvas.pack(fill='both', expand=True)
+        self.canvas.pack(side=tk.BOTTOM, fill='both', expand=True)
         try:
             # load and bind image w/ resizing function for dynamic resizing
             self.original_image = Image.open("automata_visualization.png")
@@ -254,24 +254,27 @@ class SimulationPage(tk.Frame):
             messagebox.showinfo("None", "No saved automata found.")
             return
 
-        # show each as “ID → description”
+        # 2) build and show the prompt
         lines = [f"{aid} → {desc}" for aid, desc in choices]
         prompt = "Enter the ID of the automaton to load:\n" + "\n".join(lines)
-
-        # 2) ask for a pure integer
         auto_id = simpledialog.askinteger("Load Automaton", prompt, minvalue=1)
         if auto_id is None:
-            return  # user cancelled
+            return # user cancelled
 
-        # 3) fetch it from the DB
+        # 3) Load it from the DB
         automaton = self.program_logic.load_automata_by_id(auto_id)
         if not automaton:
             messagebox.showerror("Error", f"No automaton with ID {auto_id}.")
             return
 
-        # 4) regenerate the PNG and redraw exactly like “Accept” does
-        self.program_logic.visualizeAutomata(automaton)   # writes automata_visualization.png :contentReference[oaicite:0]{index=0}&#8203;:contentReference[oaicite:1]{index=1}
-        self.automata_def_label.config(text=str(automaton)) 
+        # 4) regenerate the image
+        self.program_logic.visualizeAutomata(automaton)
+
+        # 5) update the one‑line label to just the name
+        name = getattr(automaton, "_Automata__name", f"#{auto_id}")
+        self.automata_def_label.config(text=f"Loaded automaton: {name}")
+
+        # 6) redraw the canvas
         self.display_automata()
 
         messagebox.showinfo("Loaded", f"Automaton #{auto_id} loaded.")
