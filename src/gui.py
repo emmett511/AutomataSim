@@ -91,6 +91,10 @@ class SimulationPage(tk.Frame):
         self.logged_in_label.pack(pady=5)
         tk.Button(self, text="Logout", command=self.logout).pack(pady=5)
 
+        # Automata Definition Label
+        self.automata_def_label = tk.Label(self, text=self.default_automata_definition)
+        self.automata_def_label.pack(pady=10)
+
         # window size
         self.master.geometry("1000x500") # type: ignore
         button_frame = tk.Frame(self)
@@ -111,6 +115,9 @@ class SimulationPage(tk.Frame):
             command=self.input_string
             )
         self.input_string_button.pack(side=tk.LEFT, padx=5)
+
+        tk.Button(button_frame, text="Save Automaton", command=self.on_save).pack(side=tk.LEFT, padx=5)
+        tk.Button(button_frame, text="Load Automaton", command=self.on_load).pack(side=tk.LEFT, padx=5)
         
         # displays input string
         self.input_string_label = tk.Label(self, text=self.default_input_string)
@@ -232,6 +239,42 @@ class SimulationPage(tk.Frame):
 
     def update_logged_in_user(self):
         self.logged_in_label.config(text=f"Logged in as: {self.program_logic.current_user}")
+
+    def on_save(self):
+        ok = self.program_logic.save_current_automata()
+        if ok:
+            messagebox.showinfo("Saved", "Automaton saved to your account.")
+        else:
+            messagebox.showerror("Error", "Nothing to save or not logged in.")
+
+    def on_load(self):
+        # 1) get the list of saved automata
+        choices = self.program_logic.list_saved_automata()
+        if not choices:
+            messagebox.showinfo("None", "No saved automata found.")
+            return
+
+        # show each as “ID → description”
+        lines = [f"{aid} → {desc}" for aid, desc in choices]
+        prompt = "Enter the ID of the automaton to load:\n" + "\n".join(lines)
+
+        # 2) ask for a pure integer
+        auto_id = simpledialog.askinteger("Load Automaton", prompt, minvalue=1)
+        if auto_id is None:
+            return  # user cancelled
+
+        # 3) fetch it from the DB
+        automaton = self.program_logic.load_automata_by_id(auto_id)
+        if not automaton:
+            messagebox.showerror("Error", f"No automaton with ID {auto_id}.")
+            return
+
+        # 4) regenerate the PNG and redraw exactly like “Accept” does
+        self.program_logic.visualizeAutomata(automaton)   # writes automata_visualization.png :contentReference[oaicite:0]{index=0}&#8203;:contentReference[oaicite:1]{index=1}
+        self.automata_def_label.config(text=str(automaton)) 
+        self.display_automata()
+
+        messagebox.showinfo("Loaded", f"Automaton #{auto_id} loaded.")
 
 
 class GUI(tk.Tk):

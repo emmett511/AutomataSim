@@ -52,6 +52,69 @@ class ProgramLogic:
             self.valid_input_string = False
             self.input_string = "SYNTAX ERROR:" + "\n\n" + input_string
 
+    # Save and Load Automata
+    def save_current_automata(self):
+        """Serialize & save the current automaton for the logged‑in user."""
+        if not self.current_user or not self.valid_automata:
+            return False
+
+        # pull out the parts
+        data = self.current_automata.get_automata_data()
+        user_id = self.dbms.get_user_id(self.current_user)
+
+        # simple serialization: comma‑join states & alphabet; repr() of transition func
+        states       = ",".join(data["states"])
+        alphabet     = ",".join(data["alphabet"])
+        start_state  = data["start_state"]
+        accept       = ",".join(data["accept_states"])
+        transitions  = repr(data["transition_func"])
+
+        try:
+            self.dbms.add_automata(
+                user_id,
+                states,
+                start_state,
+                accept,
+                transitions,
+                alphabet
+            )
+            return True
+        except Exception:
+            return False
+
+    def list_saved_automata(self):
+        """Return a list of (automata_id, brief_description) for the current user."""
+        if not self.current_user:
+            return []
+
+        user_id = self.dbms.get_user_id(self.current_user)
+        rows = self.dbms.get_automata_by_user(user_id)
+        # rows: [(auto_id, user_id, states, start, accept, transitions, alphabet), …]
+        return [
+            (r[0], f"#{r[0]} – states:{r[2]} start:{r[3]} accept:{r[4]}")
+            for r in rows
+        ]
+
+    def load_automata_by_id(self, automata_id):
+        """Fetch the raw saved record and re‑build an Automata instance."""
+        row = self.dbms.get_automata(automata_id)
+        if not row:
+            return None
+
+        # unpack
+        _, _, states, start, accept, transitions, alphabet = row
+        # rebuild Automata directly
+        from automata import Automata
+        state_set = set(states.split(","))
+        alpha_set = set(alphabet.split(","))
+        accept_set = set(accept.split(","))
+        # transitions stored as repr(dict)
+        trans_dict = eval(transitions)
+        automaton = Automata(state_set, alpha_set, trans_dict, start, accept_set)
+        self.current_automata = automaton
+        self.valid_automata = True
+        return automaton
+
     @staticmethod
     # creates a visualization of the current state of the automata using graphviz
     def visualizeAutomata(automata):
