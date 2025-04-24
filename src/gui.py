@@ -123,6 +123,8 @@ class SimulationPage(tk.Frame):
         self.bottom_button_frame = tk.Frame(self)
         self.button1 = tk.Button(self.bottom_button_frame, text="Previous state", command=self.prev)
         self.button2 = tk.Button(self.bottom_button_frame, text="Next State", command=self.next)
+        self.button3 = tk.Button(self.bottom_button_frame, text="Reset to Beginning", command=self.reset)
+        self.button4 = tk.Button(self.bottom_button_frame, text="Run to Complete", command=self.runToComplete)
         self.bottom_button_frame.pack(pady=10, after=button_frame)
 
     def input_automata(self):
@@ -174,6 +176,8 @@ class SimulationPage(tk.Frame):
                 self.bottom_button_frame.pack(side=tk.BOTTOM, pady=2)
                 self.button1.pack(side=tk.LEFT, padx=10)
                 self.button2.pack(side=tk.LEFT, padx=10)
+                self.button3.pack(side=tk.LEFT, padx=10)
+                self.button4.pack(side=tk.LEFT, padx=10)
 
             save_button = tk.Button(popup, text="Accept", command=accept_input_string)
             save_button.pack(pady=10)
@@ -226,7 +230,17 @@ class SimulationPage(tk.Frame):
         self.program_logic.current_automata.next_state()
         self.program_logic.visualizeAutomata(self.program_logic.current_automata)  
         self.display_automata()
+    
+    def reset(self):
+        self.program_logic.current_automata.reset_to_beginning()
+        self.program_logic.visualizeAutomata(self.program_logic.current_automata)  
+        self.display_automata()
 
+    def runToComplete(self):
+        self.program_logic.current_automata.run_till_complete()
+        self.program_logic.visualizeAutomata(self.program_logic.current_automata)  
+        self.display_automata()
+    
     def logout(self):
         self.program_logic.logout()
         self.program_logic.current_automata = None

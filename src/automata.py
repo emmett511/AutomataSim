@@ -75,6 +75,12 @@ class Automata:
         
         return False
     
+    def isAccepted(self):
+        if self.__current in self.__accepting and self.__input_idx >= len(self.__inputs_list):
+            return True
+        else:
+            return False
+    
     def get_automata_data(self):
         """returns the data members of the automata"""
         return {
