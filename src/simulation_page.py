@@ -9,14 +9,19 @@ class SimulationPage(tk.Frame):
     default_input_string = "No input string inputted yet..."
     default_automata_definition = "No automata definition inputted yet..."
 
-    def __init__(self, parent, program_logic: ProgramLogic):
+    def __init__(self, parent, program_logic: ProgramLogic, controller):
         super().__init__(parent)
 
         # NOTE: when combining all frames together, this will need to be rethought
         self.program_logic = program_logic 
 
+        self.controller = controller
+        self.logged_in_label = tk.Label(self, text=f"Logged in as: {self.program_logic.current_user}")
+        self.logged_in_label.pack(pady=5)
+        tk.Button(self, text="Logout", command=self.logout).pack(pady=5)
+
         # window size
-        self.master.geometry("2000x1000") # type: ignore
+        self.master.geometry("1000x500") # type: ignore
         button_frame = tk.Frame(self)
         button_frame.pack(pady=20)
         
@@ -51,6 +56,7 @@ class SimulationPage(tk.Frame):
         self.bottom_button_frame = tk.Frame(self)
         self.button1 = tk.Button(self.bottom_button_frame, text="Previous state", command=self.prev)
         self.button2 = tk.Button(self.bottom_button_frame, text="Next State", command=self.next)
+        self.bottom_button_frame.pack(pady=10, after=button_frame)
 
     def input_automata(self):
         """Popup for user to enter automata dsl description"""
@@ -135,7 +141,21 @@ class SimulationPage(tk.Frame):
         self.program_logic.visualizeAutomata(self.program_logic.current_automata)  
         self.display_automata()
 
+    def logout(self):
+        self.program_logic.logout()
+        self.program_logic.current_automata = None
+        self.program_logic.valid_automata = False
+        self.program_logic.valid_input_string = False
+        self.automata_def_label.config(text="No automaton inputted yet...")
+        self.input_string_label.config(text="No input string inputted yet...")
+        if hasattr(self, 'canvas'):
+            self.canvas.destroy()
 
+        self.bottom_button_frame.pack_forget()  # hide prev/next if shown
+        self.controller.show_frame("HomePage")
+
+    def update_logged_in_user(self):
+        self.logged_in_label.config(text=f"Logged in as: {self.program_logic.current_user}")
 
 if __name__ == "__main__":
     root = tk.Tk()
