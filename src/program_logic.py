@@ -12,7 +12,7 @@ class ProgramLogic:
         self.valid_automata = False
         self.valid_input_string = False
 
-        self.current_user = None # tracks logged in user
+        self.current_user = None 
         self.dbms = DBMS()
 
     def create_account(self, user_name, password):

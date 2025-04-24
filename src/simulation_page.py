@@ -160,6 +160,6 @@ class SimulationPage(tk.Frame):
 if __name__ == "__main__":
     root = tk.Tk()
     root.title("Simulation Page")
-    page = SimulationPage(root, ProgramLogic())
+    page = SimulationPage(root, ProgramLogic(), )
     page.pack(fill="both", expand=True)
     root.mainloop()

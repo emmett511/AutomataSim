@@ -3,3 +3,7 @@ __pycache__/
 venv/
 .mypy_cache/
 .pytest_cache/
+*.png
+graph_layout
+*.dot
+*.db
