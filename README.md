@@ -1,10 +1,12 @@
 # AutomataSim
 
-![automata](pictures/automata_visualization_small.png)
+<p align="center">
+  <img src="pictures/automata_visualization_small.png" alt="automata" width="700">
+</p>
 
 This repository contains an application called AutomataSim built for the final group project of Cpts 322 (Software Engineering Principles) at Washington State University. 
 
-AutomataSim is a tool for visualizing and simulating [deterministic finite automata](https://en.wikipedia.org/wiki/Deterministic_finite_automaton). It introduces a custom domain specific language for defining DFAs in a JSON-like format. Interpreted DFAs can then be simulated on input strings that adhere to the automaton's alphabet.
+AutomataSim is a graphical application for visualizing and simulating [deterministic finite automata](https://en.wikipedia.org/wiki/Deterministic_finite_automaton). It introduces a custom domain specific language for defining DFAs in a JSON-like format. Interpreted DFAs can then be simulated on input strings that adhere to the automaton's alphabet.
 
 # Automata DSL
 
