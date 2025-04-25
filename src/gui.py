@@ -271,7 +271,7 @@ class SimulationPage(tk.Frame):
         self.program_logic.visualizeAutomata(automaton)
 
         # 5) update the one‑line label to just the name
-        name = getattr(automaton, "_Automata__name", f"#{auto_id}")
+        name = self.program_logic.current_automata._Automata__name
         self.automata_def_label.config(text=f"Loaded automaton: {name}")
 
         # 6) redraw the canvas
