@@ -140,7 +140,11 @@ class ProgramLogic:
 
         # iterate through list of states, creating nodes for each
         for state in states:
-            
+    
+            if state == current_state and automata.isAccepted():
+                visualized_DFA.node(state, style='filled', fillcolor='blue', shape='doublecircle')
+                continue   
+        
             # if the state is the current state and an accept state, draw double circle and fill in green
             if state == current_state and state in accept_states:
                 visualized_DFA.node(state, style='filled', fillcolor='green', shape='doublecircle')

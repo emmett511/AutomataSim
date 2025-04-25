@@ -75,6 +75,12 @@ class Automata:
         
         return False
     
+    def isAccepted(self):
+        if self.__current in self.__accepting and self.__input_idx >= len(self.__inputs_list):
+            return True
+        else:
+            return False
+    
     def get_automata_data(self):
         """returns the data members of the automata"""
         return {
@@ -84,6 +90,9 @@ class Automata:
             "start_state": self.__starting,
             "accept_states": self.__accepting
         }
+
+    def getIndex(self):
+        return self.__input_idx
 
     def char_in_alphabet(self, char) -> bool:
         for c in char:
