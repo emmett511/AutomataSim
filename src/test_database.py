@@ -93,7 +93,7 @@ def test_add_automaton(db):
     user_id = cursor.fetchone()[0]
     conn.close()
 
-    db.add_automaton(user_id, "q0,q1,q2", "q0", "q2", "{'q0': {'a': 'q1'}, 'q1': {'b': 'q2'}}", "a,b")
+    db.add_automata(user_id, "name", "q0,q1,q2", "q0", "q2", "{'q0': {'a': 'q1'}, 'q1': {'b': 'q2'}}", "a,b")
 
     conn = db.connect()
     cursor = conn.cursor()
@@ -103,11 +103,12 @@ def test_add_automaton(db):
 
     assert automata is not None
     assert automata[1] == user_id
-    assert automata[2] == "q0,q1,q2"
-    assert automata[3] == "q0"
-    assert automata[4] == "q2"
-    assert automata[5] == "{'q0': {'a': 'q1'}, 'q1': {'b': 'q2'}}"
-    assert automata[6] == "a,b"
+    assert automata[2] == "name"
+    assert automata[3] == "q0,q1,q2"
+    assert automata[4] == "q0"
+    assert automata[5] == "q2"
+    assert automata[6] == "{'q0': {'a': 'q1'}, 'q1': {'b': 'q2'}}"
+    assert automata[7] == "a,b"
 
 # 6) Test Retrieving Automata
 def test_get_automata_by_user(db):
@@ -120,13 +121,13 @@ def test_get_automata_by_user(db):
     user_id = cursor.fetchone()[0]
     conn.close()
 
-    db.add_automaton(user_id, "q0,q1,q2", "q0", "q2", "{'q0': {'a': 'q1'}, 'q1': {'b': 'q2'}}", "a,b")
+    db.add_automata(user_id, "name", "q0,q1,q2", "q0", "q2", "{'q0': {'a': 'q1'}, 'q1': {'b': 'q2'}}", "a,b")
 
     automata = db.get_automata_by_user(user_id)
     
     assert len(automata) == 1
     assert automata[0][1] == user_id  # Ensure automaton belongs to correct user
-    assert automata[0][2] == "q0,q1,q2"
+    assert automata[0][3] == "q0,q1,q2"
 
 # 7) Test No Automata for a User
 def test_no_automata_for_user(db):
@@ -156,10 +157,10 @@ def test_add_automaton_invalid(db):
 
     # Try adding an automaton with missing fields (invalid input)
     with pytest.raises(Exception):  
-        db.add_automaton(user_id, "", "q0", "q2", "", "a,b")  # Empty states and transitions
+        db.add_automata(user_id, "name", "", "q0", "q2", "", "a,b")  # Empty states and transitions
 
     with pytest.raises(Exception):  
-        db.add_automaton(user_id, "q0,q1,q2", "", "q2", "{'q0': {'a': 'q1'}}", "a,b")  # Missing start state
+        db.add_automata(user_id, "name", "q0,q1,q2", "", "q2", "{'q0': {'a': 'q1'}}", "a,b")  # Missing start state
 
 # 9) Test SQL Injection Protection
 def test_sql_injection_protection(db):
