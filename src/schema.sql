@@ -7,6 +7,7 @@ CREATE TABLE USER (
 CREATE TABLE AUTOMATA (
     automata_id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
     states TEXT NOT NULL,
     start_state TEXT NOT NULL,
     accept_states TEXT NOT NULL,

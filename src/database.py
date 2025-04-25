@@ -49,7 +49,7 @@ class DBMS:
                 return True
         return False
 
-    def add_automaton(self, user_id, states, start_state, accept_states, state_transition_func, alphabet):
+    def add_automata(self, user_id, name, states, start_state, accept_states, state_transition_func, alphabet):
         """Insert a new automaton into the database, ensuring all fields are valid."""
         if not all([states, start_state, accept_states, state_transition_func, alphabet]):
             raise ValueError("Automaton fields cannot be empty.")
@@ -58,8 +58,8 @@ class DBMS:
         cursor = conn.cursor()
         
         cursor.execute(
-            "INSERT INTO AUTOMATA (user_id, states, start_state, accept_states, state_transition_func, alphabet) VALUES (?, ?, ?, ?, ?, ?)",
-            (user_id, states, start_state, accept_states, state_transition_func, alphabet)
+            "INSERT INTO AUTOMATA (user_id, name, states, start_state, accept_states, state_transition_func, alphabet) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (user_id, name, states, start_state, accept_states, state_transition_func, alphabet)
         )
         
         conn.commit()
@@ -74,3 +74,20 @@ class DBMS:
         automata = cursor.fetchall()
         conn.close()
         return automata
+
+    def get_automata(self, automata_id):
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM AUTOMATA WHERE automata_id = ?", (automata_id,))
+        row = cursor.fetchone()
+        conn.close()
+        return row
+
+    def get_user_id(self, username):
+        """Return the user_id integer for a given username, or None."""
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute("SELECT user_id FROM USER WHERE username = ?", (username,))
+        row = cursor.fetchone()
+        conn.close()
+        return row[0] if row else None
