@@ -91,6 +91,9 @@ class Automata:
             "accept_states": self.__accepting
         }
 
+    def getIndex(self):
+        return self.__input_idx
+
     def char_in_alphabet(self, char) -> bool:
         for c in char:
             if c not in self.__alphabet:

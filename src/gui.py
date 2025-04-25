@@ -91,6 +91,8 @@ class SimulationPage(tk.Frame):
         self.logged_in_label.pack(pady=5)
         tk.Button(self, text="Logout", command=self.logout).pack(pady=5)
 
+        self.accept = None 
+
         # window size
         self.master.geometry("1000x500") # type: ignore
         button_frame = tk.Frame(self)
@@ -127,6 +129,29 @@ class SimulationPage(tk.Frame):
         self.button4 = tk.Button(self.bottom_button_frame, text="Run to Complete", command=self.runToComplete)
         self.bottom_button_frame.pack(pady=10, after=button_frame)
 
+    def check_accept(self):
+        if self.accept:
+            self.accept.destroy()
+
+        if self.program_logic.current_automata.isAccepted():
+            self.accept = tk.Label(self, text="The automata accepts the input string")
+            self.accept.pack(pady=10)
+
+    def display_input_info(self):
+        if hasattr(self, 'input_info'):
+            self.input_info.destroy()
+        
+        next_index = self.program_logic.current_automata.getIndex()
+        try:
+            next_symbol = self.program_logic.input_string[next_index]
+        except IndexError:
+            next_symbol = "N/A"
+        
+        info_text = f"Next Index: {next_index}  Next Input Symbol: {next_symbol}"
+        
+        self.input_info = tk.Label(self, text=info_text)
+        self.input_info.pack(pady=10)
+
     def input_automata(self):
         """Popup for user to enter automata dsl description"""
         # popup window
@@ -152,6 +177,15 @@ class SimulationPage(tk.Frame):
 
         save_button = tk.Button(popup, text="Accept", command=compile_automata)
         save_button.pack(pady=10)
+        self.button1.pack_forget()
+        self.button2.pack_forget()
+        self.button3.pack_forget()
+        self.button4.pack_forget()
+        self.bottom_button_frame.pack_forget()
+
+        if self.accept:
+            self.accept.destroy()
+            self.accept = None
 
     def input_string(self):
         if self.program_logic.valid_automata:
@@ -178,6 +212,11 @@ class SimulationPage(tk.Frame):
                 self.button2.pack(side=tk.LEFT, padx=10)
                 self.button3.pack(side=tk.LEFT, padx=10)
                 self.button4.pack(side=tk.LEFT, padx=10)
+                self.display_input_info()
+                
+                if self.accept:
+                    self.accept.destroy()
+                    self.accept = None
 
             save_button = tk.Button(popup, text="Accept", command=accept_input_string)
             save_button.pack(pady=10)
@@ -222,24 +261,38 @@ class SimulationPage(tk.Frame):
         self.canvas.create_image(x, y, anchor=tk.CENTER, image=self.automata_img)
 
     def prev(self):
+        if self.accept:
+            self.accept.destroy()
+            self.accept = None
         self.program_logic.current_automata.prev_state()
         self.program_logic.visualizeAutomata(self.program_logic.current_automata)  
         self.display_automata()
+        self.display_input_info()
+
     
     def next(self):
         self.program_logic.current_automata.next_state()
         self.program_logic.visualizeAutomata(self.program_logic.current_automata)  
         self.display_automata()
+        self.display_input_info()
+        self.check_accept()
+        
     
     def reset(self):
+        if self.accept:
+            self.accept.destroy()
+            self.accept = None
         self.program_logic.current_automata.reset_to_beginning()
         self.program_logic.visualizeAutomata(self.program_logic.current_automata)  
         self.display_automata()
+        self.display_input_info()
 
     def runToComplete(self):
         self.program_logic.current_automata.run_till_complete()
         self.program_logic.visualizeAutomata(self.program_logic.current_automata)  
         self.display_automata()
+        self.display_input_info()
+        self.check_accept()
     
     def logout(self):
         self.program_logic.logout()
