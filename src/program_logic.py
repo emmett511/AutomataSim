@@ -68,10 +68,12 @@ class ProgramLogic:
         start_state  = data["start_state"]
         accept       = ",".join(data["accept_states"])
         transitions  = repr(data["transition_func"])
+        name = self.current_automata._Automata__name
 
         try:
             self.dbms.add_automata(
                 user_id,
+                name,
                 states,
                 start_state,
                 accept,
@@ -102,7 +104,7 @@ class ProgramLogic:
             return None
 
         # unpack
-        _, _, states, start, accept, transitions, alphabet = row
+        _, _, name, states, start, accept, transitions, alphabet = row
         # rebuild Automata directly
         from automata import Automata
         state_set = set(states.split(","))
@@ -110,7 +112,7 @@ class ProgramLogic:
         accept_set = set(accept.split(","))
         # transitions stored as repr(dict)
         trans_dict = eval(transitions)
-        automaton = Automata(state_set, alpha_set, trans_dict, start, accept_set)
+        automaton = Automata(state_set, alpha_set, trans_dict, start, accept_set, name)
         self.current_automata = automaton
         self.valid_automata = True
         return automaton

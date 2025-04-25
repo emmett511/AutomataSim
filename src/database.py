@@ -49,7 +49,7 @@ class DBMS:
                 return True
         return False
 
-    def add_automata(self, user_id, states, start_state, accept_states, state_transition_func, alphabet):
+    def add_automata(self, user_id, name, states, start_state, accept_states, state_transition_func, alphabet):
         """Insert a new automaton into the database, ensuring all fields are valid."""
         if not all([states, start_state, accept_states, state_transition_func, alphabet]):
             raise ValueError("Automaton fields cannot be empty.")
@@ -58,8 +58,8 @@ class DBMS:
         cursor = conn.cursor()
         
         cursor.execute(
-            "INSERT INTO AUTOMATA (user_id, states, start_state, accept_states, state_transition_func, alphabet) VALUES (?, ?, ?, ?, ?, ?)",
-            (user_id, states, start_state, accept_states, state_transition_func, alphabet)
+            "INSERT INTO AUTOMATA (user_id, name, states, start_state, accept_states, state_transition_func, alphabet) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (user_id, name, states, start_state, accept_states, state_transition_func, alphabet)
         )
         
         conn.commit()
