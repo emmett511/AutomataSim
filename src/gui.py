@@ -133,7 +133,7 @@ class SimulationPage(tk.Frame):
         self.button2 = tk.Button(self.bottom_button_frame, text="Next State", command=self.next)
         self.button3 = tk.Button(self.bottom_button_frame, text="Reset to Beginning", command=self.reset)
         self.button4 = tk.Button(self.bottom_button_frame, text="Run to Complete", command=self.runToComplete)
-        self.bottom_button_frame.pack(pady=10, after=button_frame)
+        self.bottom_button_frame.pack(side=tk.BOTTOM, pady=10)
 
     def check_accept(self):
         if self.accept:
@@ -187,7 +187,6 @@ class SimulationPage(tk.Frame):
         self.button2.pack_forget()
         self.button3.pack_forget()
         self.button4.pack_forget()
-        self.bottom_button_frame.pack_forget()
 
         if self.accept:
             self.accept.destroy()
@@ -213,7 +212,6 @@ class SimulationPage(tk.Frame):
 
                 self.program_logic.current_automata.set_input(self.program_logic.input_string)
                 # show prev and next buttons after accepted input
-                self.bottom_button_frame.pack(side=tk.BOTTOM, pady=2)
                 self.button1.pack(side=tk.LEFT, padx=10)
                 self.button2.pack(side=tk.LEFT, padx=10)
                 self.button3.pack(side=tk.LEFT, padx=10)
@@ -310,7 +308,6 @@ class SimulationPage(tk.Frame):
         if hasattr(self, 'canvas'):
             self.canvas.destroy()
 
-        self.bottom_button_frame.pack_forget()  # hide prev/next if shown
         self.controller.show_frame("HomePage")
 
     def update_logged_in_user(self):
